@@ -1,34 +1,46 @@
 package org.example;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.locks.*;
 
 public class TicketPool {
-    private final Queue<org.example.Ticket> pool = new LinkedList<>();
-    private final int capacity;
+    private int availableTickets;
+    private final int maxCapacity;
+    private final Lock lock;
 
-    public TicketPool(int capacity) {
-        this.capacity = capacity;
+    public TicketPool(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+        this.availableTickets = 0;
+        this.lock = new ReentrantLock();
     }
 
-    public synchronized void addTicket(org.example.Ticket ticket) throws InterruptedException {
-        while (pool.size() == capacity) {
-            wait(); // Wait until there's space in the pool
+    // Vendor releases tickets
+    public void addTickets(int count) {
+        lock.lock();
+        try {
+            if (availableTickets + count <= maxCapacity) {
+                availableTickets += count;
+                Logger.log(count + " tickets released. Total tickets: " + availableTickets);
+            }
+        } finally {
+            lock.unlock();
         }
-        pool.add(ticket);
-        System.out.println("Vendor has added a ticket to the Pool. Current size is " + pool.size());
-        notifyAll(); // Notify customers waiting to buy tickets
     }
 
-    public synchronized org.example.Ticket buyTicket() throws InterruptedException {
-        while (pool.isEmpty()) {
-            wait(); // Wait until a ticket is available
+    // Customer retrieves tickets
+    public void removeTicket() {
+        lock.lock();
+        try {
+            if (availableTickets > 0) {
+                availableTickets--;
+                Logger.log("One ticket purchased. Tickets remaining: " + availableTickets);
+            }
+        } finally {
+            lock.unlock();
         }
-        org.example.Ticket ticket = pool.poll();
-        System.out.println("Customer has bought a ticket from the pool. Current size is " + pool.size());
-        notifyAll(); // Notify vendors waiting to add tickets
-        return ticket;
+    }
+
+    public int getAvailableTickets() {
+        return availableTickets;
     }
 }
-
 
