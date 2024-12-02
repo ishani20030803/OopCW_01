@@ -42,7 +42,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>org.example.TicketingUI</mainClass>
+                    <mainClass>org.example.TicketingUI</mainClass> <!-- Main class with JavaFX GUI -->
                 </configuration>
                 <executions>
                     <execution>
@@ -54,4 +54,6 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
+
