@@ -1,6 +1,6 @@
 {
   "totalTickets": 100,
-  "poolCapacity": 100,
+  "poolCapacity": 200,
   "vendorInterval": 200,
-  "customerInterval": 300
+  "customerInterval": 150
 }
