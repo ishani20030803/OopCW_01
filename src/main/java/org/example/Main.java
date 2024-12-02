@@ -1,41 +1,28 @@
 package org.example;
 
-import java.util.Scanner;
-
 public class Main {
     public static void main(String[] args) {
-        // CLI Interface for user input
-        Configuration config = getConfigurationFromCLI();
-
-        // Running the system with provided configuration
-        TicketingSystem.runSystem(config);
-    }
-
-    private static Configuration getConfigurationFromCLI() {
-        Scanner scanner = new Scanner(System.in);
+        // Initialize the system configuration
         Configuration config = new Configuration();
+        config.loadConfig(); // Load configuration with hardcoded values or from file
 
-        System.out.print("Enter total number of tickets: ");
-        config.setTotalTickets(Integer.parseInt(scanner.nextLine()));
+        // Initialize the Ticketing System with the loaded configuration
+        TicketingSystem ticketingSystem = new TicketingSystem(config);
 
-        System.out.print("Enter ticket release rate (in milliseconds): ");
-        config.setVendorInterval(Integer.parseInt(scanner.nextLine()));
+        // Start the system (Simulating concurrent vendors and customers)
+        System.out.println("Starting Ticketing System...");
+        ticketingSystem.startSystem();
 
-        System.out.print("Enter customer retrieval rate (in milliseconds): ");
-        config.setCustomerInterval(Integer.parseInt(scanner.nextLine()));
+        // For testing purposes, let's wait for a while before stopping
+        try {
+            Thread.sleep(10000); // Run the system for 10 seconds for example
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
-        System.out.print("Enter maximum ticket capacity: ");
-        config.setPoolCapacity(Integer.parseInt(scanner.nextLine()));
-
-        // Optionally save to a file
-        saveConfigurationToFile(config);
-
-        return config;
-    }
-
-    private static void saveConfigurationToFile(Configuration config) {
-        // Save configuration to file (serialization or JSON)
-        config.saveConfigurationToJSON("config.json");
+        // Stop the system
+        System.out.println("Stopping Ticketing System...");
+        ticketingSystem.stopSystem();
     }
 }
 
