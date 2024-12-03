@@ -11,14 +11,17 @@ public class Customer implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            ticketPool.removeTicket();
-            try {
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                Ticket ticket = ticketPool.removeTicket();
+                Logger.log("Customer retrieved Ticket ID: " + ticket.getId());
                 Thread.sleep(retrievalRate);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore interrupt status
+            Logger.log("Customer thread interrupted. Stopping ticket retrieval.");
         }
     }
 }
+
 
