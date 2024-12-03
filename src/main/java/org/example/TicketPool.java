@@ -1,46 +1,44 @@
 package org.example;
 
-import java.util.concurrent.locks.*;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class TicketPool {
-    private int availableTickets;
+    private final Queue<Ticket> tickets = new LinkedList<>();
     private final int maxCapacity;
-    private final Lock lock;
 
     public TicketPool(int maxCapacity) {
         this.maxCapacity = maxCapacity;
-        this.availableTickets = 0;
-        this.lock = new ReentrantLock();
     }
 
-    // Vendor releases tickets
-    public void addTickets(int count) {
-        lock.lock();
-        try {
-            if (availableTickets + count <= maxCapacity) {
-                availableTickets += count;
-                Logger.log(count + " tickets released. Total tickets: " + availableTickets);
+    public synchronized void addTicket(Ticket ticket) {
+        while (tickets.size() >= maxCapacity) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        } finally {
-            lock.unlock();
         }
+        tickets.add(ticket);
+        notifyAll();
     }
 
-    // Customer retrieves tickets
-    public void removeTicket() {
-        lock.lock();
-        try {
-            if (availableTickets > 0) {
-                availableTickets--;
-                Logger.log("One ticket purchased. Tickets remaining: " + availableTickets);
+    public synchronized Ticket removeTicket() {
+        while (tickets.isEmpty()) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
-        } finally {
-            lock.unlock();
         }
+        Ticket ticket = tickets.poll();
+        notifyAll();
+        return ticket;
     }
 
-    public int getAvailableTickets() {
-        return availableTickets;
+    public synchronized int getAvailableTickets() {
+        return tickets.size();
     }
 }
+
 
