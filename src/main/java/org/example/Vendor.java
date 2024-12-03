@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.Random;
+
 public class Vendor implements Runnable {
     private final TicketPool ticketPool;
     private final int releaseRate;
@@ -11,13 +13,13 @@ public class Vendor implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            ticketPool.addTickets(1);
-            try {
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                ticketPool.addTicket(new Ticket());
                 Thread.sleep(releaseRate);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }
