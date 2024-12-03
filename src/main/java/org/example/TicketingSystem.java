@@ -1,36 +1,46 @@
 package org.example;
 
-import java.util.concurrent.*;
-
 public class TicketingSystem {
     private final TicketPool ticketPool;
-    private final ExecutorService vendorService;
-    private final ExecutorService customerService;
-    private final Configuration config;
+    private Thread vendorThread;
+    private Thread customerThread;
 
-    public TicketingSystem(Configuration config) {
-        this.config = config;
-        this.ticketPool = new TicketPool(config.getMaxCapacity());
-        this.vendorService = Executors.newFixedThreadPool(5); // Max 5 vendors
-        this.customerService = Executors.newFixedThreadPool(10); // Max 10 customers
+    public TicketingSystem(Configuration configuration) {
+        this.ticketPool = new TicketPool(configuration.getMaxCapacity());
+        setupThreads(configuration);
     }
 
-    public void startSystem() {
-        // Start vendors and customers
-        for (int i = 0; i < 5; i++) {
-            vendorService.submit(new Vendor(ticketPool, config.getReleaseRate()));
-        }
+    private void setupThreads(Configuration configuration) {
+        Vendor vendor = new Vendor(ticketPool, configuration.getReleaseRate());
+        Customer customer = new Customer(ticketPool, configuration.getRetrievalRate());
 
-        for (int i = 0; i < 10; i++) {
-            customerService.submit(new Customer(ticketPool, config.getRetrievalRate()));
+        vendorThread = new Thread(vendor, "Vendor-Thread");
+        customerThread = new Thread(customer, "Customer-Thread");
+    }
+
+    public void start() {
+        if (vendorThread != null && customerThread != null) {
+            vendorThread.start();
+            customerThread.start();
+            Logger.log("Ticketing system started.");
         }
     }
 
-    public void stopSystem() {
-        vendorService.shutdownNow();
-        customerService.shutdownNow();
+    public void stop() {
+        if (vendorThread != null) {
+            vendorThread.interrupt();
+        }
+        if (customerThread != null) {
+            customerThread.interrupt();
+        }
+        Logger.log("Ticketing system stopped.");
+    }
+
+    public int getAvailableTickets() {
+        return ticketPool.getAvailableTickets();
     }
 }
+
 
 
 
