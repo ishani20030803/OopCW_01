@@ -1,17 +1,18 @@
 package org.example;
 
 public class Ticket {
-    private static int idCounter = 0;
-    private final int ticketId;
+    private static int idCounter = 1;
+    private final int id;
 
     public Ticket() {
-        this.ticketId = idCounter++;
+        this.id = idCounter++;
     }
 
-    public int getTicketId() {
-        return ticketId;
+    public int getId() {
+        return id;
     }
 }
+
 
 
 
