@@ -1,45 +1,60 @@
 package org.example;
 
+import javafx.application.Platform;
+import javafx.scene.control.Button;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class TicketingSystem {
+
     private final TicketPool ticketPool;
-    private Thread vendorThread;
-    private Thread customerThread;
+    private final Button ticketsAvailableButton;
+    private final ExecutorService executorService;
 
-    public TicketingSystem(Configuration configuration) {
-        this.ticketPool = new TicketPool(configuration.getMaxCapacity());
-        setupThreads(configuration);
-    }
+    public TicketingSystem(int maxCapacity, int releaseRateMs, int retrievalRateMs, Button ticketsAvailableButton) {
+        this.ticketsAvailableButton = ticketsAvailableButton;
+        ticketPool = new TicketPool(maxCapacity);
+        executorService = Executors.newCachedThreadPool();
 
-    private void setupThreads(Configuration configuration) {
-        Vendor vendor = new Vendor(ticketPool, configuration.getReleaseRate());
-        Customer customer = new Customer(ticketPool, configuration.getRetrievalRate());
+        // Vendors
+        executorService.submit(new Vendor(ticketPool, releaseRateMs, "Vendor-1"));
+        executorService.submit(new Vendor(ticketPool, releaseRateMs, "Vendor-2"));
 
-        vendorThread = new Thread(vendor, "Vendor-Thread");
-        customerThread = new Thread(customer, "Customer-Thread");
+        // Customers
+        executorService.submit(new Customer(ticketPool, retrievalRateMs, "Customer-1"));
+        executorService.submit(new Customer(ticketPool, retrievalRateMs, "Customer-2"));
+        executorService.submit(new Customer(ticketPool, retrievalRateMs, "Customer-3"));
     }
 
     public void start() {
-        if (vendorThread != null && customerThread != null) {
-            vendorThread.start();
-            customerThread.start();
-            Logger.log("Ticketing system started.");
-        }
+        updateTicketsAvailable();
     }
 
     public void stop() {
-        if (vendorThread != null) {
-            vendorThread.interrupt();
-        }
-        if (customerThread != null) {
-            customerThread.interrupt();
-        }
-        Logger.log("Ticketing system stopped.");
+        executorService.shutdownNow();
     }
 
     public int getAvailableTickets() {
         return ticketPool.getAvailableTickets();
     }
+
+    private void updateTicketsAvailable() {
+        new Thread(() -> {
+            while (!executorService.isShutdown()) {
+                Platform.runLater(() -> ticketsAvailableButton.setText("Tickets Available: " + ticketPool.getAvailableTickets()));
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }).start();
+    }
 }
+
+
+
 
 
 
