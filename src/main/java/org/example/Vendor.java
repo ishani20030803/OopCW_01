@@ -1,27 +1,31 @@
 package org.example;
 
-import java.util.Random;
-
 public class Vendor implements Runnable {
     private final TicketPool ticketPool;
-    private final int releaseRate;
+    private final int releaseRateMs;
+    private final String name;
 
-    public Vendor(TicketPool ticketPool, int releaseRate) {
+    public Vendor(TicketPool ticketPool, int releaseRateMs, String name) {
         this.ticketPool = ticketPool;
-        this.releaseRate = releaseRate;
+        this.releaseRateMs = releaseRateMs;
+        this.name = name;
     }
 
     @Override
     public void run() {
-        try {
-            while (!Thread.currentThread().isInterrupted()) {
-                ticketPool.addTicket(new Ticket());
-                Thread.sleep(releaseRate);
+        int ticketId = 1;
+        while (true) {
+            try {
+                Ticket ticket = new Ticket(ticketId++, "Event Simple", 1000.0);
+                ticketPool.addTicket(ticket);
+                System.out.println(name + " added ticket: " + ticket);
+                Thread.sleep(releaseRateMs);
+            } catch (InterruptedException e) {
+                break;
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 }
+
 
 
