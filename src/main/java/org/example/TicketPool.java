@@ -4,41 +4,45 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class TicketPool {
-    private final Queue<Ticket> tickets = new LinkedList<>();
+
     private final int maxCapacity;
+    private final Queue<Ticket> pool;
 
     public TicketPool(int maxCapacity) {
         this.maxCapacity = maxCapacity;
+        this.pool = new LinkedList<>();
     }
 
     public synchronized void addTicket(Ticket ticket) {
-        while (tickets.size() >= maxCapacity) {
+        while (pool.size() >= maxCapacity) {
             try {
                 wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-        tickets.add(ticket);
+        pool.add(ticket);
         notifyAll();
     }
 
-    public synchronized Ticket removeTicket() {
-        while (tickets.isEmpty()) {
+    public synchronized Ticket retrieveTicket() {
+        while (pool.isEmpty()) {
             try {
                 wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-        Ticket ticket = tickets.poll();
+        Ticket ticket = pool.poll();
         notifyAll();
         return ticket;
     }
 
     public synchronized int getAvailableTickets() {
-        return tickets.size();
+        return pool.size();
     }
 }
+
+
 
 
