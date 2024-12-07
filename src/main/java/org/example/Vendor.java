@@ -14,18 +14,19 @@ public class Vendor implements Runnable {
     @Override
     public void run() {
         int ticketId = 1;
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 Ticket ticket = new Ticket(ticketId++, "Event Simple", 1000.0);
                 ticketPool.addTicket(ticket);
                 System.out.println(name + " added ticket: " + ticket);
                 Thread.sleep(releaseRateMs);
             } catch (InterruptedException e) {
-                break;
+                Thread.currentThread().interrupt();
             }
         }
     }
 }
+
 
 
 
