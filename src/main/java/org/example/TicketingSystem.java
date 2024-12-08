@@ -2,60 +2,71 @@ package org.example;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javafx.scene.control.Button;
 
 public class TicketingSystem {
 
     private final TicketPool ticketPool;
     private final ExecutorService executorService;
+    private final Button ticketsAvailableButton; // Optional for GUI updates
 
-    /**
-     * Main constructor - initializes ticketPool and executorService.
-     */
+    // Constructor for CLI without Button
     public TicketingSystem(int maxCapacity, int releaseRateMs, int retrievalRateMs) {
-        // Proper initialization of both fields
-        this.ticketPool = new TicketPool(maxCapacity); // Initialize the pool with capacity
-        this.executorService = Executors.newCachedThreadPool(); // Create a thread pool for system operations
-
-        // Start vendor and customer threads
-        initializeVendorsAndCustomers(releaseRateMs, retrievalRateMs);
+        this(maxCapacity, releaseRateMs, retrievalRateMs, null); // Call main constructor
     }
 
-    /**
-     * Initializes vendors and customers in the thread pool.
-     */
+    // Main constructor with Button for GUI
+    public TicketingSystem(int maxCapacity, int releaseRateMs, int retrievalRateMs, Button ticketsAvailableButton) {
+        this.ticketPool = new TicketPool(maxCapacity);
+        this.executorService = Executors.newCachedThreadPool();
+        this.ticketsAvailableButton = ticketsAvailableButton;
+
+        initializeVendorsAndCustomers(releaseRateMs, retrievalRateMs);
+        if (ticketsAvailableButton != null) {
+            updateTicketsAvailableUI();
+        }
+    }
+
     private void initializeVendorsAndCustomers(int releaseRateMs, int retrievalRateMs) {
-        // Initialize two vendors
         executorService.submit(new Vendor(ticketPool, releaseRateMs, "Vendor-1"));
         executorService.submit(new Vendor(ticketPool, releaseRateMs, "Vendor-2"));
-
-        // Initialize three customers
         executorService.submit(new Customer(ticketPool, retrievalRateMs, "Customer-1"));
         executorService.submit(new Customer(ticketPool, retrievalRateMs, "Customer-2"));
-        executorService.submit(new Customer(ticketPool, retrievalRateMs, "Customer-3"));
     }
 
-    /**
-     * Log the system startup.
-     */
     public void start() {
-        Logger.log("Ticketing system started.");
+        Logger.getInstance().log("Ticketing system started."); // Fixed: Accessing the Logger instance
     }
 
-    /**
-     * Stops all operations and shuts down the thread pool.
-     */
     public void stop() {
         executorService.shutdownNow();
-        Logger.log("Ticketing system stopped.");
+        Logger.getInstance().log("Ticketing system stopped."); // Fixed: Accessing the Logger instance
     }
 
-    /**
-     * Retrieves the available number of tickets.
-     */
     public int getAvailableTickets() {
         return ticketPool.getAvailableTickets();
     }
+
+    private void updateTicketsAvailableUI() {
+        new Thread(() -> {
+            while (!executorService.isShutdown()) {
+                javafx.application.Platform.runLater(() -> {
+                    if (ticketsAvailableButton != null) {
+                        ticketsAvailableButton.setText("Tickets Available: " + getAvailableTickets());
+                    }
+                });
+                try {
+                    Thread.sleep(500); // Update every 500 ms
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }).start();
+    }
 }
+
+
+
 
 
 
