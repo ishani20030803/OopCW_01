@@ -1,6 +1,1 @@
-{
-  "totalTickets": 100,
-  "poolCapacity": 1,
-  "vendorInterval": 200,
-  "customerInterval": 100
-}
+{"maxCapacity":1,"releaseRateMs":999,"retrievalRateMs":800}
