@@ -35,7 +35,13 @@ public class TicketPool {
     public synchronized int getAvailableTickets() {
         return tickets.size();
     }
+
+    // Getter for max capacity
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
 }
+
 
 
 
