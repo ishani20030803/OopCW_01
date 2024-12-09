@@ -1,7 +1,5 @@
 package org.example;
 
-import javafx.application.Platform;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +7,7 @@ public class Logger {
     private static Logger instance;
     private final List<LogListener> listeners = new ArrayList<>();
 
-    private Logger() {
-    }
+    private Logger() {}
 
     public static synchronized Logger getInstance() {
         if (instance == null) {
@@ -21,7 +18,7 @@ public class Logger {
 
     public synchronized void log(String message) {
         System.out.println(message); // Always print to the console
-        notifyListeners(message);    // Notify listeners, e.g., GUI
+        notifyListeners(message);
     }
 
     public synchronized void addListener(LogListener listener) {
@@ -38,7 +35,6 @@ public class Logger {
         void onLog(String message);
     }
 }
-
 
 
 
