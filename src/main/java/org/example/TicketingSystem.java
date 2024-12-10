@@ -56,8 +56,11 @@ public class TicketingSystem {
     public int getAvailableTickets() {
         return ticketPool.getAvailableTickets();
     }
-}
 
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+}
 
 
 
