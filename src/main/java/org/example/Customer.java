@@ -20,7 +20,8 @@ public class Customer implements Runnable {
     public void run() {
         while (running) {
             try {
-                Ticket ticket = ticketPool.retrieveTicket();
+                Ticket ticket;
+                ticket = ticketPool.retrieveTicket();
                 if (ticket != null) {
                     purchasedTickets.add(ticket);
                     System.out.println(name + " bought ticket: " + ticket);
