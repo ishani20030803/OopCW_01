@@ -12,6 +12,8 @@ public class TicketPool {
         this.tickets = new LinkedList<>();
     }
 
+
+
     // Method to add a ticket to the pool
     public synchronized void addTicket(Ticket ticket) throws InterruptedException {
         while (tickets.size() >= maxCapacity) {
