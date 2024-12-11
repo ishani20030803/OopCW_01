@@ -5,7 +5,9 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -13,45 +15,82 @@ import java.util.List;
 
 public class TicketingUI extends Application {
 
-    private TextArea logArea;
     private TicketingSystem ticketingSystem;
-    private Scene mainScene; // Store the main scene for the Back button functionality
+    private Scene mainScene;
+    private Scene nextScene; // Scene for next step after login/signup
+    private Scene loginScene; // Login scene
+    private Scene signUpScene; // Sign up scene
     private final List<String> customers = new ArrayList<>(); // To store customer details
-    private final List<String> vendors = new ArrayList<>(); // To store vendor details
+    private final List<Vendor> vendors = new ArrayList<>(); // To store vendor details
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Event Ticketing System");
 
-        // Log Area
-        logArea = new TextArea();
-        logArea.setEditable(false);
-        logArea.setPrefHeight(300);
+        // Welcome Label
+        Label welcomeLabel = new Label("Welcome to Event Ticketing System");
+        welcomeLabel.setFont(Font.font("Arial", 24));
+        welcomeLabel.setTextFill(Color.DARKBLUE);
+        welcomeLabel.setStyle("-fx-background-color: #d6e7f2; -fx-padding: 20px; -fx-border-radius: 10px;");
 
-        // Text Fields for Ticketing System Configurations
+        // Sign Up and Login Buttons
+        Button signUpButton = createStyledButton("Sign Up");
+        Button loginButton = createStyledButton("Login");
+        Button nextButton = createStyledButton("Next");
+
+        // Layout for the welcome screen
+        VBox welcomeLayout = new VBox(15, welcomeLabel, signUpButton, loginButton, nextButton);
+        welcomeLayout.setPadding(new Insets(30));
+        welcomeLayout.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        // Event handling for Next button to go to the next page (parameters input page)
+        nextButton.setOnAction(event -> showNextPage(primaryStage));
+
+        // Button Actions for Sign Up and Login (we'll just show the next page for now)
+        signUpButton.setOnAction(event -> showSignUpPage(primaryStage));
+        loginButton.setOnAction(event -> showLoginPage(primaryStage));
+
+        mainScene = new Scene(welcomeLayout, 600, 600); // Initial Scene with Welcome and Buttons
+        primaryStage.setScene(mainScene);
+        primaryStage.show();
+    }
+
+    /**
+     * Creates a styled button with decoration.
+     */
+    private Button createStyledButton(String text) {
+        Button button = new Button(text);
+        button.setStyle("-fx-background-color: #0078d7; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10px 20px; -fx-border-radius: 5px;");
+
+        button.setOnMouseEntered(event -> button.setStyle("-fx-background-color: #005ea6; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));
+        button.setOnMouseExited(event -> button.setStyle("-fx-background-color: #0078d7; -fx-text-fill: white; -fx-font-size: 14; -fx-padding: 10px 20px; -fx-border-radius: 5px;"));
+
+        return button;
+    }
+
+    /**
+     * Displays the Next Page with system parameters input fields and the Start/Stop buttons.
+     */
+    private void showNextPage(Stage primaryStage) {
+        // Text fields for system parameters
         TextField maxCapacityField = new TextField();
         maxCapacityField.setPromptText("Max Capacity");
+        maxCapacityField.setStyle("-fx-background-color: #e8f0fe; -fx-border-color: #0078d7; -fx-border-radius: 5px; -fx-padding: 8px;");
 
         TextField releaseRateField = new TextField();
         releaseRateField.setPromptText("Release Rate (ms)");
+        releaseRateField.setStyle("-fx-background-color: #e8f0fe; -fx-border-color: #0078d7; -fx-border-radius: 5px; -fx-padding: 8px;");
 
         TextField retrievalRateField = new TextField();
         retrievalRateField.setPromptText("Retrieval Rate (ms)");
+        retrievalRateField.setStyle("-fx-background-color: #e8f0fe; -fx-border-color: #0078d7; -fx-border-radius: 5px; -fx-padding: 8px;");
 
-        // Buttons
-        Button startButton = new Button("Start System");
-        Button stopButton = new Button("Stop System");
+        // Start and Stop buttons
+        Button startButton = createStyledButton("Start System");
+        Button stopButton = createStyledButton("Stop System");
         stopButton.setDisable(true);
 
-        Button signUpButton = new Button("Sign Up");
-        Button loginButton = new Button("Login");
-        Button customersButton = new Button("Customers");
-        Button vendorsButton = new Button("Vendors");
-
-        // Log Listener
-        Logger.getInstance().addListener(message -> Platform.runLater(() -> logArea.appendText(message + "\n")));
-
-        // Button Actions
+        // Button actions for start and stop
         startButton.setOnAction(event -> {
             try {
                 int maxCapacity = Integer.parseInt(maxCapacityField.getText());
@@ -78,42 +117,57 @@ public class TicketingUI extends Application {
             }
         });
 
-        // Sign Up Button Action
-        signUpButton.setOnAction(event -> showSignUpPage(primaryStage));
+        // Back, Booking Ticket, and Cancel Ticket Buttons
+        Button backButton = createStyledButton("Back");
+        Button bookingTicketButton = createStyledButton("Booking Ticket");
+        Button cancelTicketButton = createStyledButton("Cancel Ticket");
 
-        // Login Button Action
-        loginButton.setOnAction(event -> showLoginPage(primaryStage));
+        // Button actions for Back, Booking Ticket, and Cancel Ticket
+        backButton.setOnAction(event -> primaryStage.setScene(mainScene)); // Go back to main scene
+        bookingTicketButton.setOnAction(event -> Logger.getInstance().log("Ticket booked successfully."));
+        cancelTicketButton.setOnAction(event -> Logger.getInstance().log("Ticket has been canceled."));
 
-        // Customers Button Action
-        customersButton.setOnAction(event -> showCustomerDetails(primaryStage));
-
-        // Vendors Button Action
-        vendorsButton.setOnAction(event -> showVendorDetails(primaryStage));
-
-        // Layout
-        VBox layout = new VBox(10,
+        // Layout for the next page (system parameters)
+        VBox nextLayout = new VBox(15,
+                createStyledLabel("System Configuration", 20, Color.DARKBLUE),
                 maxCapacityField, releaseRateField, retrievalRateField,
-                startButton, stopButton,
-                signUpButton, loginButton, customersButton, vendorsButton,
-                logArea
+                new HBox(10, startButton, stopButton),
+                new HBox(10, backButton, bookingTicketButton, cancelTicketButton)
         );
-        layout.setPadding(new Insets(20));
+        nextLayout.setPadding(new Insets(30));
+        nextLayout.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        mainScene = new Scene(layout, 400, 600); // Save the main scene
-        primaryStage.setScene(mainScene);
-        primaryStage.show();
+        nextScene = new Scene(nextLayout, 600, 700); // Scene for system parameters input page
+        primaryStage.setScene(nextScene);
     }
 
     /**
-     * Displays the Sign-Up Page where users can select their role.
+     * Creates a styled label with custom font size and color.
      */
-    private void showSignUpPage(Stage primaryStage) {
-        VBox signUpLayout = new VBox(10);
-        signUpLayout.setPadding(new Insets(20));
+    private Label createStyledLabel(String text, int fontSize, Color color) {
+        Label label = new Label(text);
+        label.setFont(Font.font("Arial", fontSize));
+        label.setTextFill(color);
+        label.setStyle("-fx-background-color: #d6e7f2; -fx-padding: 10px; -fx-border-radius: 10px;");
+        return label;
+    }
 
-        Label signUpLabel = new Label("Sign Up");
-        TextField nameField = new TextField();
-        nameField.setPromptText("Enter your name");
+    /**
+     * Displays the Login Page where users can enter their username and password.
+     */
+    private void showLoginPage(Stage primaryStage) {
+        VBox loginLayout = new VBox(15);
+        loginLayout.setPadding(new Insets(30));
+        loginLayout.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        Label loginLabel = createStyledLabel("Login", 20, Color.DARKBLUE);
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Enter your username");
+        usernameField.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #0078d7; -fx-border-radius: 5px; -fx-padding: 8px;");
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Enter your password");
+        passwordField.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #0078d7; -fx-border-radius: 5px; -fx-padding: 8px;");
 
         ToggleGroup roleGroup = new ToggleGroup();
         RadioButton customerButton = new RadioButton("Customer");
@@ -121,132 +175,70 @@ public class TicketingUI extends Application {
         RadioButton vendorButton = new RadioButton("Vendor");
         vendorButton.setToggleGroup(roleGroup);
 
-        Button submitButton = new Button("Submit");
-        Button backButton = new Button("Back");
+        Button loginButton = createStyledButton("Login");
+        Button backButton = createStyledButton("Back");
 
-        // Submit button action
-        submitButton.setOnAction(event -> {
-            String name = nameField.getText().trim();
-            RadioButton selectedRole = (RadioButton) roleGroup.getSelectedToggle();
-
-            if (name.isEmpty() || selectedRole == null) {
-                Logger.getInstance().log("Please fill in all fields.");
-                return;
-            }
-
-            String role = selectedRole.getText();
-            if ("Customer".equals(role)) {
-                customers.add(name);
-            } else if ("Vendor".equals(role)) {
-                vendors.add(name);
-            }
-
-            Logger.getInstance().log("Sign-Up Successful! Name: " + name + ", Role: " + role);
-
-            // Return to the main page
-            primaryStage.setScene(mainScene);
-        });
-
-        // Back button action
-        backButton.setOnAction(event -> primaryStage.setScene(mainScene));
-
-        signUpLayout.getChildren().addAll(signUpLabel, nameField, customerButton, vendorButton, submitButton, backButton);
-
-        Scene signUpScene = new Scene(signUpLayout, 400, 300);
-        primaryStage.setScene(signUpScene);
-    }
-
-    /**
-     * Displays the Login Page where users can enter their username and password.
-     */
-    private void showLoginPage(Stage primaryStage) {
-        VBox loginLayout = new VBox(10);
-        loginLayout.setPadding(new Insets(20));
-
-        Label loginLabel = new Label("Login");
-        TextField usernameField = new TextField();
-        usernameField.setPromptText("Enter your username");
-
-        PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Enter your password");
-
-        Button loginButton = new Button("Login");
-        Button backButton = new Button("Back");
-
-        // Login button action
         loginButton.setOnAction(event -> {
-            String username = usernameField.getText().trim();
-            String password = passwordField.getText().trim();
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+            String role = roleGroup.getSelectedToggle() != null ? ((RadioButton) roleGroup.getSelectedToggle()).getText() : "";
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Logger.getInstance().log("Please enter both username and password.");
-                return;
-            }
-
-            Logger.getInstance().log("Login Successful! Username: " + username);
-            primaryStage.setScene(mainScene); // Return to the main page
+            // Handle login logic here (check user credentials)
+            Logger.getInstance().log("Logged in as " + username + " with role " + role);
         });
 
-        // Back button action
         backButton.setOnAction(event -> primaryStage.setScene(mainScene));
 
-        loginLayout.getChildren().addAll(loginLabel, usernameField, passwordField, loginButton, backButton);
-
-        Scene loginScene = new Scene(loginLayout, 400, 300);
+        loginLayout.getChildren().addAll(loginLabel, usernameField, passwordField, customerButton, vendorButton, loginButton, backButton);
+        loginScene = new Scene(loginLayout, 600, 600);
         primaryStage.setScene(loginScene);
     }
 
     /**
-     * Displays the customer details.
+     * Displays the Sign-Up Page where users can enter their details to create an account.
      */
-    private void showCustomerDetails(Stage primaryStage) {
-        VBox customerLayout = new VBox(10);
-        customerLayout.setPadding(new Insets(20));
+    private void showSignUpPage(Stage primaryStage) {
+        VBox signUpLayout = new VBox(15);
+        signUpLayout.setPadding(new Insets(30));
+        signUpLayout.setBackground(new Background(new BackgroundFill(Color.LIGHTYELLOW, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        Label customerLabel = new Label("Customer Details");
-        TextArea customerDetailsArea = new TextArea(String.join("\n", customers));
-        customerDetailsArea.setEditable(false);
+        Label signUpLabel = createStyledLabel("Sign Up", 20, Color.DARKBLUE);
+        TextField signUpUsernameField = new TextField();
+        signUpUsernameField.setPromptText("Enter your username");
+        signUpUsernameField.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #0078d7; -fx-border-radius: 5px; -fx-padding: 8px;");
 
-        Button backButton = new Button("Back");
-        backButton.setOnAction(event -> primaryStage.setScene(mainScene));
+        PasswordField signUpPasswordField = new PasswordField();
+        signUpPasswordField.setPromptText("Enter your password");
+        signUpPasswordField.setStyle("-fx-background-color: #f4f4f4; -fx-border-color: #0078d7; -fx-border-radius: 5px; -fx-padding: 8px;");
 
-        customerLayout.getChildren().addAll(customerLabel, customerDetailsArea, backButton);
+        ToggleGroup signUpRoleGroup = new ToggleGroup();
+        RadioButton signUpCustomerButton = new RadioButton("Customer");
+        signUpCustomerButton.setToggleGroup(signUpRoleGroup);
+        RadioButton signUpVendorButton = new RadioButton("Vendor");
+        signUpVendorButton.setToggleGroup(signUpRoleGroup);
 
-        Scene customerScene = new Scene(customerLayout, 400, 300);
-        primaryStage.setScene(customerScene);
-    }
+        Button signUpButton = createStyledButton("Sign Up");
+        Button signUpBackButton = createStyledButton("Back");
 
-    /**
-     * Displays the vendor details.
-     */
-    private void showVendorDetails(Stage primaryStage) {
-        VBox vendorLayout = new VBox(10);
-        vendorLayout.setPadding(new Insets(20));
+        signUpButton.setOnAction(event -> {
+            String username = signUpUsernameField.getText();
+            String password = signUpPasswordField.getText();
+            String role = signUpRoleGroup.getSelectedToggle() != null ? ((RadioButton) signUpRoleGroup.getSelectedToggle()).getText() : "";
 
-        Label vendorLabel = new Label("Vendor Details");
-        TextArea vendorDetailsArea = new TextArea(String.join("\n", vendors));
-        vendorDetailsArea.setEditable(false);
+            // Handle sign-up logic here (save user details to the system)
+            Logger.getInstance().log("Signed up as " + username + " with role " + role);
+        });
 
-        Button backButton = new Button("Back");
-        backButton.setOnAction(event -> primaryStage.setScene(mainScene));
+        signUpBackButton.setOnAction(event -> primaryStage.setScene(mainScene));
 
-        vendorLayout.getChildren().addAll(vendorLabel, vendorDetailsArea, backButton);
-
-        Scene vendorScene = new Scene(vendorLayout, 400, 300);
-        primaryStage.setScene(vendorScene);
+        signUpLayout.getChildren().addAll(signUpLabel, signUpUsernameField, signUpPasswordField, signUpCustomerButton, signUpVendorButton, signUpButton, signUpBackButton);
+        signUpScene = new Scene(signUpLayout, 600, 600);
+        primaryStage.setScene(signUpScene);
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
-
-
-
-
-
-
-
-
 
 
