@@ -12,6 +12,8 @@ public class Vendor implements Runnable {
         this.name = name;
     }
 
+
+
     @Override
     public void run() {
         while (running) {
@@ -31,5 +33,3 @@ public class Vendor implements Runnable {
         running = false; // Set flag to stop the thread
     }
 }
-
-
