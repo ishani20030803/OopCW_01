@@ -1,8 +1,9 @@
 package org.example;
 
 public class Vendor implements Runnable {
+    // Allows the `Vendor` class to execute on a different thread by implementing the `Runnable` interface.
     private final TicketPool ticketPool;
-    private final int releaseRateMs;
+    private final int releaseRateMs;// The milliseconds that pass between ticket releases.
     private final String name;
     private volatile boolean running = true; // Flag to stop thread
 
@@ -11,6 +12,7 @@ public class Vendor implements Runnable {
         this.releaseRateMs = releaseRateMs;
         this.name = name;
     }
+
 
 
 
@@ -30,6 +32,7 @@ public class Vendor implements Runnable {
     }
 
     public void stop() {
-        running = false; // Set flag to stop the thread
+        running = false;
+        // The thread leaves the loop in `run` when the `running` flag is set to `false`.
     }
 }
