@@ -1,17 +1,19 @@
 package org.example;
 
 import com.google.gson.Gson;
+// To serialize and deserialize JSON, import the Gson library.
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class Configuration {
+    // Defines the `Configuration` class, which controls the settings of the program.
     private static final String CONFIG_FILE = "config.json";
 
-    private int maxCapacity;
-    private int releaseRateMs;
-    private int retrievalRateMs;
+    private int maxCapacity;// Maximum capacity of tickets in the pool.
+    private int releaseRateMs;// The amount of time (in milliseconds) that vendors take to release tickets.
+    private int retrievalRateMs;// The amount of time (in milliseconds) that consumers take to get their tickets back.
 
     public static final int DEFAULT_MAX_CAPACITY = 5;
     public static final int DEFAULT_RELEASE_RATE_MS = 2000;
@@ -30,8 +32,10 @@ public class Configuration {
             Gson gson = new Gson();
             return gson.fromJson(reader, Configuration.class);
         } catch (IOException e) {
+             // Handles with exceptions in the event that the file is missing or cannot be read.
             System.out.println("Configuration file not found. Using default settings.");
             return new Configuration(DEFAULT_MAX_CAPACITY, DEFAULT_RELEASE_RATE_MS, DEFAULT_RETRIEVAL_RATE_MS);
+            // Provides the default settings in a new configuration object.
         }
     }
 
@@ -46,15 +50,15 @@ public class Configuration {
     }
 
     // Getters
-    public int getMaxCapacity() {
+    public int getMaxCapacity() {// Getter method for `maxCapacity
         return maxCapacity;
     }
 
-    public int getReleaseRateMs() {
+    public int getReleaseRateMs() {// Getter method for `releaseRateMs`
         return releaseRateMs;
     }
 
-    public int getRetrievalRateMs() {
+    public int getRetrievalRateMs() {  // Getter method for `retrievalRateMs`.
         return retrievalRateMs;
     }
 }
