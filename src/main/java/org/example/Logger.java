@@ -1,22 +1,25 @@
 package org.example;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.List;// Imports necessary classes for managing a list of log listeners.
 
 public class Logger {
-    private static Logger instance;
+    private static Logger instance;// To enforce the Singleton pattern, use a static instance of the Logger class.
     private final List<LogListener> listeners = new ArrayList<>();
 
     private Logger() {}
-
+    // To stop direct instantiation from outside the class, use a private constructor.
     public static synchronized Logger getInstance() {
-        if (instance == null) {
+        if (instance == null) {// Create the instance if it hasn't already been built.
             instance = new Logger();
         }
         return instance;
     }
 
     public synchronized void log(String message) {
+        // Notifies all listeners and logs a message to the terminal (thread-safe).
+
+
         System.out.println(message); // Always print to the console
         notifyListeners(message);
     }
@@ -33,6 +36,7 @@ public class Logger {
 
     public interface LogListener {
         void onLog(String message);
+        // A method that takes the message as an input and is called when a log event takes place.
     }
 }
 
