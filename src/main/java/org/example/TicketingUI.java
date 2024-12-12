@@ -1,7 +1,7 @@
-package org.example;
+package org.example;// Specifies the package that the class is part of.
+
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
-
+// Imports the utility and JavaFX classes required to create and manage the user interface and internal data.
 public class TicketingUI extends Application {
 
     private TicketingSystem ticketingSystem;
@@ -20,18 +20,23 @@ public class TicketingUI extends Application {
     private Scene nextScene; // Scene for next step after login/signup
     private Scene loginScene; // Login scene
     private Scene signUpScene; // Sign up scene
-    private final List<String> customers = new ArrayList<>(); // To store customer details
+    private final List<String> customers = new ArrayList<>();
+    // List to keep client information (stand-in for real customer management)
     private final List<Vendor> vendors = new ArrayList<>(); // To store vendor details
 
     @Override
     public void start(Stage primaryStage) {
+        // The JavaFX application's entry point. sets up and shows the main window.
         primaryStage.setTitle("Event Ticketing System");
 
         // Welcome Label
         Label welcomeLabel = new Label("Welcome to Event Ticketing System");
+        // Creates a label with an address on it.
         welcomeLabel.setFont(Font.font("Arial", 24));
         welcomeLabel.setTextFill(Color.DARKBLUE);
         welcomeLabel.setStyle("-fx-background-color: #d6e7f2; -fx-padding: 20px; -fx-border-radius: 10px;");
+        // Provides the label border styling, padding, and background color.
+
 
         // Sign Up and Login Buttons
         Button signUpButton = createStyledButton("Sign Up");
@@ -46,7 +51,7 @@ public class TicketingUI extends Application {
         // Event handling for Next button to go to the next page (parameters input page)
         nextButton.setOnAction(event -> showNextPage(primaryStage));
 
-        // Button Actions for Sign Up and Login (we'll just show the next page for now)
+        // Sign Up and Login Button Actions (for the moment being, we'll just display the next page)
         signUpButton.setOnAction(event -> showSignUpPage(primaryStage));
         loginButton.setOnAction(event -> showLoginPage(primaryStage));
 
