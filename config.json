@@ -1,1 +1,1 @@
-{"maxCapacity":1,"releaseRateMs":999,"retrievalRateMs":800}
+{"maxCapacity":1,"releaseRateMs":2000,"retrievalRateMs":3000}
